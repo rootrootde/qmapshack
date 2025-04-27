@@ -167,7 +167,7 @@ function archiveBundle {
 
 echo "---extract version -----------------"
 extractVersion
-readRevisionHash
+# readRevisionHash
 echo "---build bundle --------------------"
 buildAppStructure
 extendAppStructure
@@ -212,7 +212,7 @@ if [ -z "$BREW_PACKAGE_BUILD" ]; then
 fi
 
 
-printLinkingExtTools
+# printLinkingExtTools
 echo "------------------------------------"
 
 # Codesign the apps (on arm64 mandatory):

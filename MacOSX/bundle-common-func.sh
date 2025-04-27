@@ -6,6 +6,12 @@ source $QMSDEVDIR/qmapshack/MacOSX/config.sh   # check for important paramters
 SRC_RESOURCES_DIR=$SRC_OSX_DIR/resources
 BUILD_BIN_DIR=$QMSDEVDIR/build_QMapShack/bin
 
+# Check if BUILD_BIN_DIR is empty
+if [ -z "$(ls -A $BUILD_BIN_DIR 2>/dev/null)" ]; then
+    echo "Error: BUILD_BIN_DIR ($BUILD_BIN_DIR) is empty. Exiting."
+    exit 1
+fi
+
 # vars for bundling
 set -a
 declare APP_LANG=("ca" "cs" "de" "en" "es" "fr" "nl" "ru")
@@ -246,13 +252,13 @@ function adjustLinkDyLib {
            "$PACKAGES_PATH"*) 
              PREL="@executable_path/../Frameworks/$LIB"
              echo "Changing $LIB to reference $PREL"
-             sudo install_name_tool -change $P $PREL $F
+             install_name_tool -change $P $PREL $F
              ;;
 
            # 2. adjust rpath libraries that are known to cause problems
            @rpath/libproj.25.dylib)
              echo "Fixing libproj @rpath in $F"
-             sudo install_name_tool -change @rpath/libproj.25.dylib \
+             install_name_tool -change @rpath/libproj.25.dylib \
                  @executable_path/../Frameworks/libproj.25.dylib $F
              ;;
         esac
@@ -300,7 +306,7 @@ function adjustLinkQt {
         case "$P" in
             *//*)
                 PSLASH=$(echo $P | sed 's,//,/,g')
-                sudo install_name_tool -change $P $PSLASH $F
+                install_name_tool -change $P $PSLASH $F
                 ;;
         esac
 
@@ -333,16 +339,16 @@ function adjustLinkQt {
             echo "no update - is a relativ id"
         elif echo "$LIB" | grep -q "$FREL"; then
             echo "name_tool: $FREL >> $PREL ($P)"
-            sudo install_name_tool -id $PREL $F
+            install_name_tool -id $PREL $F
         elif echo "$P" | grep -q "$L"; then
             echo "name_tool: $FREL > $PREL ($P)"
-            sudo install_name_tool -change $P $PREL $F
+            install_name_tool -change $P $PREL $F
         elif echo "$P" | grep -q "^@loader_path"; then
             echo "name_tool: $FREL > $PREL ($P)"
-            sudo install_name_tool -change $P $PREL $F
+            install_name_tool -change $P $PREL $F
         elif echo "$P" | grep -q "^@rpath"; then
             echo "name_tool: $FREL > $PREL ($P)"
-            sudo install_name_tool -change $P $PREL $F
+            install_name_tool -change $P $PREL $F
         fi
     done
 }

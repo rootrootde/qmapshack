@@ -5,10 +5,25 @@ echo "${ATTN}Building GDAL ...${NC}"
 echo "${ATTN}-----------------${NC}"
 
 ######################################################################## 
-# build GDAL (experimental: now using cmake)
-    echo "${ATTN}Building GDAL ...${NC}"
+# Define cache directory
+CACHE_DIR="$QMSDEVDIR/.cache"
+GDAL_CACHE_DIR="$CACHE_DIR/gdal"
+
+# Ensure cache directory exists
+mkdir -p "$CACHE_DIR"
+
+# Check if GDAL is already in the cache
+if [ -d "$GDAL_CACHE_DIR" ]; then
+    echo "${ATTN}Using cached GDAL from $GDAL_CACHE_DIR${NC}"
+    cp -r "$GDAL_CACHE_DIR" "$QMSDEVDIR/gdal"
+else
+    echo "${ATTN}Cloning GDAL repository...${NC}"
     cd $QMSDEVDIR
     git clone -b "release/$GDAL_RELEASE" https://github.com/OSGeo/gdal.git
+    echo "${ATTN}Caching GDAL to $GDAL_CACHE_DIR${NC}"
+    cp -r "$QMSDEVDIR/gdal" "$GDAL_CACHE_DIR"
+fi
+
 # --> folder $QMSVERDIR/gdal/ created
     cd $QMSDEVDIR/gdal
     mkdir build

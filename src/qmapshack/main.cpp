@@ -29,6 +29,8 @@
 int main(int argc, char** argv) {
   QApplication app(argc, argv);
 
+  app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
+
   QCoreApplication::setApplicationName("QMapShack");
   QCoreApplication::setOrganizationName("QLandkarte");
   QCoreApplication::setOrganizationDomain("qlandkarte.org");

@@ -108,7 +108,7 @@ function copyExternalHelpFiles_QMT {
 
 echo "---extract version -----------------"
 extractVersion
-readRevisionHash
+# readRevisionHash
 echo "---build bundle --------------------"
 buildAppStructure
 extendAppStructure

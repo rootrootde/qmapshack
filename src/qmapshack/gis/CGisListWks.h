@@ -130,6 +130,7 @@ class CGisListWks : public QTreeWidget {
   void slotNewDevice();
   void slotSyncPrjToDevices();
   void slotToRoute();
+  void slotToggleVisibilityAllProjects();
 
  private:
   void configDB();

@@ -423,11 +423,12 @@ CMainWindow::CMainWindow() : id(QRandomGenerator::global()->generate()) {
                       actionToggleRte,
                       actionToggleDocks,
                       actionToggleToolBar,
+                      actionToggleVisibilityAllProjects,
                       actionFullScreen,
                       actionStartQMapTool,
                       actionRenameView,
                       actionLinkMapViews};
-
+  
   QAction* separator1 = new QAction("---------------", this);
   separator1->setSeparator(true);
   separator1->setObjectName("separator");

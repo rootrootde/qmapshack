@@ -369,6 +369,8 @@ void CGisListWks::setExternalMenu(QMenu* project) {
           &CGisListWks::slotCloseAllProjects);
   connect(CMainWindow::self().findChild<QAction*>("actionGeoSearch"), &QAction::triggered, this,
           &CGisListWks::slotGeoSearch);
+  connect(CMainWindow::self().findChild<QAction*>("actionToggleVisibilityAllProjects"), &QAction::triggered, this,
+          &CGisListWks::slotToggleVisibilityAllProjects);
 }
 
 QAction* CGisListWks::addSortAction(QObject* parent, QActionGroup* actionGroup, const QString& icon,
@@ -1279,20 +1281,64 @@ void CGisListWks::slotContextMenu(const QPoint& point) {
 }
 
 void CGisListWks::setVisibilityOnMap(bool visible) {
-  CGisListWksEditLock lock(true, IGisItem::mutexItems);
-  const QList<QTreeWidgetItem*>& items = selectedItems();
-  for (QTreeWidgetItem* item : items) {
-    IGisProject* project = dynamic_cast<IGisProject*>(item);
-    if (nullptr != project) {
-      project->setCheckState(CGisListDB::eColumnCheckbox, visible ? Qt::Checked : Qt::Unchecked);
+    qDebug() << "setVisibilityOnMap called with visibility:" << visible;
+    CGisListWksEditLock lock(true, IGisItem::mutexItems);
+    const QList<QTreeWidgetItem*>& items = selectedItems();
+    for (QTreeWidgetItem* item : items) {
+        IGisProject* project = dynamic_cast<IGisProject*>(item);
+        if (nullptr != project) {
+            qDebug() << "Setting visibility for project:" << project->getName() << "to" << visible;
+            project->setCheckState(CGisListDB::eColumnCheckbox, visible ? Qt::Checked : Qt::Unchecked);
+        }
     }
-  }
-  emit sigChanged();
+    emit sigChanged();
 }
 
 void CGisListWks::slotShowOnMap() { setVisibilityOnMap(true); }
 
 void CGisListWks::slotHideFrMap() { setVisibilityOnMap(false); }
+
+void CGisListWks::slotToggleVisibilityAllProjects() {
+    static QSet<IGisProject*> visibleProjects; // Tracks currently visible projects
+
+    QAction* action = CMainWindow::self().findChild<QAction*>("actionToggleVisibilityAllProjects");
+    if (!action) {
+        qDebug() << "slotToggleVisibilityAllProjects triggered without a valid action.";
+        return;
+    }
+
+    bool isChecked = action->isChecked();
+    qDebug() << "slotToggleVisibilityAllProjects triggered. Action checked state:" << isChecked;
+
+    // Use findItems to retrieve all projects in the workspace
+    const QList<QTreeWidgetItem*>& items = findItems("*", Qt::MatchWildcard);
+    for (QTreeWidgetItem* item : items) {
+        IGisProject* project = dynamic_cast<IGisProject*>(item);
+        if (project != nullptr) {
+            if (isChecked) {
+                // Show only projects that were previously visible
+                if (visibleProjects.contains(project)) {
+                    project->setCheckState(CGisListDB::eColumnCheckbox, Qt::Checked);
+                    qDebug() << "Showing project:" << project->getName();
+                }
+            } else {
+                // Hide only projects that are currently visible
+                if (project->checkState(CGisListDB::eColumnCheckbox) == Qt::Checked) {
+                    visibleProjects.insert(project);
+                    project->setCheckState(CGisListDB::eColumnCheckbox, Qt::Unchecked);
+                    qDebug() << "Hiding project:" << project->getName();
+                }
+            }
+        }
+    }
+
+    if (isChecked) {
+        visibleProjects.clear(); // Clear the set after restoring visibility
+    }
+
+    emit sigChanged();
+    qDebug() << "Visibility toggled. Action checked state now:" << isChecked;
+}
 
 static void closeProjects(const QList<QTreeWidgetItem*>& items) {
   for (QTreeWidgetItem* item : items) {

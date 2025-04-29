@@ -55,7 +55,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -131,6 +131,7 @@
     <addaction name="separator"/>
     <addaction name="actionSetupWorkspace"/>
     <addaction name="actionSetupWaypointIcons"/>
+    <addaction name="actionToggleVisibilityAllProjects"/>
    </widget>
    <widget class="QMenu" name="menuExtra">
     <property name="title">
@@ -1072,6 +1073,20 @@
    </property>
    <property name="toolTip">
     <string>Setup paths to POI collections</string>
+   </property>
+  </action>
+  <action name="actionToggleVisibilityAllProjects">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toggle Visibility of All Projects</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle visibility of all projects in the workspace</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+.</string>
    </property>
   </action>
  </widget>

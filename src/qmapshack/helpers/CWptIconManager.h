@@ -61,6 +61,7 @@ class CWptIconManager : public QObject {
   void setWptIconByName(const QString& name, const QString& filename);
   void setWptIconByName(const QString& name, const QPixmap& icon);
   void removeNumberedBullets();
+  QString selectWptIconFromGrid(QWidget* parent);
 
   static CWptIconManager* pSelf;
   static const char* wptDefault;

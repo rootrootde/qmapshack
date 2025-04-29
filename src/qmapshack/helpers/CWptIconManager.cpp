@@ -263,16 +263,46 @@ QPixmap CWptIconManager::getWptIconByName(const QString& name, QPointF& focus, Q
 }
 
 QString CWptIconManager::selectWptIcon(QWidget* parent) {
-  QString icon;
+  // Use the grid dialog instead of the menu
+  return selectWptIconFromGrid(parent);
+}
 
-  QMenu* menu = getWptIconMenu("", nullptr, "", parent);
-  QAction* action = menu->exec(QCursor::pos());
+QString CWptIconManager::selectWptIconFromGrid(QWidget* parent) {
+  QDialog dialog(parent);
+  dialog.setWindowTitle(tr("Select Waypoint Icon"));
+  QGridLayout* layout = new QGridLayout(&dialog);
 
-  if (action != nullptr) {
-    icon = action->property("iconName").toString();
+  const QMap<QString, icon_t>& icons = getWptIcons();
+  QStringList keys = icons.keys();
+  std::sort(keys.begin(), keys.end(), sortByString);
+
+  int row = 0, col = 0;
+  const int maxColumns = 15;
+  QString selectedIcon;
+
+  for (const QString& key : keys) {
+    QPixmap pixmap = loadIcon(icons[key].path);
+    QPushButton* btn = new QPushButton();
+    btn->setIcon(QIcon(pixmap));
+    btn->setIconSize(QSize(32, 32));
+    btn->setToolTip(key);
+    btn->setFixedSize(40, 40);
+
+    QObject::connect(btn, &QPushButton::clicked, [&dialog, &selectedIcon, key]() {
+      selectedIcon = key;
+      dialog.accept();
+    });
+
+    layout->addWidget(btn, row, col++);
+    if (col == maxColumns) {
+      col = 0;
+      row++;
+    }
   }
 
-  return icon;
+  dialog.setLayout(layout);
+  dialog.exec();
+  return selectedIcon;
 }
 
 QString CWptIconManager::getNumberedBullet(qint32 n) {
